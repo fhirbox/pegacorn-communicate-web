@@ -1,0 +1,62 @@
+Setup a riot-web running in Docker using Kubernete and Helm
+===========================================================
+
+
+Git
+===
+https://github.com/fhirbox/pegacorn-communicate-web
+
+
+Image
+=======
+Docker Hub image "vectorim/riot-web" is being used.
+
+Riot - https://hub.docker.com/r/vectorim/riot-web
+
+
+Setup
+=====
+1) Create a file called config.json from the sample file at: https://github.com/vector-im/riot-web/blob/develop/config.sample.json
+
+	Update the bae_url and server_name elements.
+
+	"default_server_config": {
+        "m.homeserver": {
+            "base_url": "https://pegacorn-communicate-roomserver.site-a:30880",
+            "server_name": "<the server_name from your custom homeserver.yaml file in pegacorn-communicate-roomserver"
+        },
+        "m.identity_server": {
+            "base_url": "https://vector.im"
+        }
+    },
+
+
+2) Copy this file to a host path location.  Remember this location as it is required for the helm command.
+
+3) Add the following to the hosts file
+	pegacorn-communicate-web.site-a
+
+
+	
+Build and deploy
+================
+cd E:\dev\pegacorn-communicate-web
+docker build --rm -t pegacorn/pegacorn-communicate-web:1.0 .
+\helm\helm upgrade pegacorn-communicate-web-site-a --install --namespace site-a --set serviceName="pegacorn-communicate-web",basePort=30890,hostPath="<location of your config.json file>",imageTag=1.0 helm
+
+
+URL
+===
+Please make sure pegacorn-communicate-roomserver has been built and deployed before using riot-web.
+
+Go to the below URL and assuming everything is good the welcome to riot page will display.  Click sign in and you
+will see the server name and homeserver url have been defaulted to what is in the config file.
+	http://pegacorn-communicate-web.site-a:30890
+	
+
+Create a new user
+=================
+1) Login in to the pegacorn-communicate-roomserver container - docker exec -it <container id> sh
+2) cd /var/lib/synapse/config
+3) Run command: register_new_matrix_user -c homeserver.yaml https://localhost:8448
+
