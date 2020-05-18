@@ -1,0 +1,1 @@
+FROM vectorim/riot-web
